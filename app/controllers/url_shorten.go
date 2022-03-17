@@ -13,23 +13,46 @@ func CreateShortenURL(c *fiber.Ctx) error {
 	// Parse
 	shortenURL := &model.ShortenUrlResquest{}
 	if err := util.ParseAndValidate(c, shortenURL); err != nil {
-		return err
+		return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{
+			"message": err.Error(),
+		})
 	}
 
 	// Parse Time
-	t, err := time.Parse(time.RFC3339, shortenURL.ExpireAtString)
+	expire_at, err := time.Parse(time.RFC3339, shortenURL.ExpireAtString)
 	if err != nil {
-		return c.SendStatus(fiber.StatusBadRequest)
+		return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{
+			"message": "please check expireAt format",
+		})
+	}
+
+	// Check if expire time has past
+	if expire_at.Before(time.Now()) {
+		return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{
+			"message": "expire time has past",
+		})
 	}
 
 	// Create Shorten
 	shorten := &model.Shorten{
-		Code:     util.GenerateCode(repository.Default_code_length),
 		URL:      shortenURL.URL,
-		ExpireAt: t,
+		ExpireAt: expire_at,
 	}
-	if a := model.CreateShorten(shorten); a != nil {
-		return c.SendStatus(fiber.StatusBadRequest)
+
+	// Generate Code and Try To Create
+	codeAvaliable := false
+	for len := repository.Default_code_length; !codeAvaliable; len++ {
+		for count := 0; count < repository.Maximum_tries; count++ {
+			shorten.Code = util.GenerateCode(len)
+			if err := model.CreateShorten(shorten); err == repository.ErrCodeUnavailable {
+				continue
+			} else if err != nil {
+				return c.SendStatus(fiber.StatusBadRequest)
+			} else {
+				codeAvaliable = true
+				break
+			}
+		}
 	}
 
 	return c.Status(fiber.StatusOK).JSON(fiber.Map{

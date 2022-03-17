@@ -1,8 +1,8 @@
 # URL Shortener
 
 ## 環境依賴
-Golang 1.17
-MariaDB 10.6.5
+Golang 1.17  
+MariaDB 10.6.5  
 Redis(預計使用)
 
 ## 建置及執行
@@ -19,5 +19,5 @@ go build -o API.exe
 - [Validator](https://github.com/go-playground/validator)
 
 ## 問題與解決
-Q:若未來有Load Balance需求，可能會在Create時有race condition情況發生
+Q:若未來有Load Balance需求，可能會在Create時有race condition情況發生  
 A:目前尚未解決(打算使用[GORM Create Hooks](https://gorm.io/docs/create.html#Create-Hooks)來避免)

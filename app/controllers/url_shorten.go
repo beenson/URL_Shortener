@@ -19,7 +19,7 @@ func CreateShortenURL(c *fiber.Ctx) error {
 	}
 
 	// Parse Time
-	expire_at, err := time.Parse(time.RFC3339, shortenURL.ExpireAtString)
+	expire_at, err := time.Parse(time.RFC3339, shortenURL.ExpireAt)
 	if err != nil {
 		return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{
 			"message": "please check expireAt format",
@@ -55,9 +55,9 @@ func CreateShortenURL(c *fiber.Ctx) error {
 		}
 	}
 
-	return c.Status(fiber.StatusOK).JSON(fiber.Map{
-		"Id":       shorten.Code,
-		"shortUrl": repository.Host_address + "/" + shorten.Code,
+	return c.Status(fiber.StatusOK).JSON(&model.ShortenUrlResponse{
+		ID:         shorten.Code,
+		ShortenUrl: repository.Host_address + "/" + shorten.Code,
 	})
 }
 

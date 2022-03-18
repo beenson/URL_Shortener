@@ -1,6 +1,6 @@
 package model
 
 type ShortenUrlResquest struct {
-	URL            string `json:"url" validate:"required,url"`
-	ExpireAtString string `json:"expireAt" validate:"required"`
+	URL      string `json:"url" validate:"required,url"`
+	ExpireAt string `json:"expireAt" validate:"required"`
 }

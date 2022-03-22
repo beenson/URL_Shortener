@@ -2,7 +2,10 @@ package util
 
 import (
 	"errors"
+	"log"
+	"os"
 	"reflect"
+	"strconv"
 	"strings"
 
 	"github.com/go-playground/validator/v10"
@@ -40,4 +43,12 @@ func ParseAndValidate(c *fiber.Ctx, out interface{}) error {
 	}
 
 	return nil
+}
+
+func ConvertEnvToInt(vari *int, name string, defaultVal int) {
+	var err error
+	if *vari, err = strconv.Atoi(os.Getenv(name)); err != nil {
+		log.Printf("%s should be integer", name)
+		vari = &defaultVal
+	}
 }

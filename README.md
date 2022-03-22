@@ -16,6 +16,7 @@ go build -o API.exe
 - [Fiber](https://github.com/gofiber/fiber)
 - [GORM](https://gorm.io/index.html)
 - [GoDotEnv](https://github.com/joho/godotenv)
+- [Testify](https://github.com/stretchr/testify)
 - [Validator](https://github.com/go-playground/validator)
 
 ## 問題與解決

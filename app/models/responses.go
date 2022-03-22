@@ -1,6 +1,6 @@
 package model
 
 type ShortenUrlResponse struct {
-	ID         string `json:"id"`
-	ShortenUrl string `json:"shortenUrl"`
+	ID       string `json:"id"`
+	ShortUrl string `json:"shortUrl"`
 }

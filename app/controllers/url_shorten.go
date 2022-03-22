@@ -26,10 +26,10 @@ func CreateShortenURL(c *fiber.Ctx) error {
 		})
 	}
 
-	// Check if expire time has past
+	// Check if expire time has passed
 	if expire_at.Before(time.Now()) {
 		return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{
-			"message": "expire time has past",
+			"message": "expire time has passed",
 		})
 	}
 
@@ -56,8 +56,8 @@ func CreateShortenURL(c *fiber.Ctx) error {
 	}
 
 	return c.Status(fiber.StatusOK).JSON(&model.ShortenUrlResponse{
-		ID:         shorten.Code,
-		ShortenUrl: repository.Host_address + "/" + shorten.Code,
+		ID:       shorten.Code,
+		ShortUrl: repository.Host_address + "/" + shorten.Code,
 	})
 }
 

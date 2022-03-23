@@ -13,7 +13,7 @@ import (
 )
 
 type Shorten struct {
-	ID       uint      `gorm:"primaryKey;autoIncrement"`
+	ID       uint      `gorm:"primaryKey;autoIncrement" json:"-"`
 	Code     string    `gorm:"not null"`
 	URL      string    `gorm:"not null"`
 	ExpireAt time.Time `gorm:"not null"`

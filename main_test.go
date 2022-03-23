@@ -199,6 +199,7 @@ func setup() {
 
 	// Init
 	repository.Init()
+	util.Init()
 
 	// Cache
 	cache.Init()

@@ -4,31 +4,19 @@ import (
 	"errors"
 	"log"
 	"os"
-	"reflect"
 	"strconv"
-	"strings"
 
 	"github.com/go-playground/validator/v10"
 	"github.com/gofiber/fiber/v2"
 )
+
+var validate *validator.Validate
 
 func ParseAndValidate(c *fiber.Ctx, out interface{}) error {
 	// Parse
 	if err := c.BodyParser(out); err != nil {
 		return err
 	}
-
-	// Create validator
-	validate := validator.New()
-	validate.RegisterTagNameFunc(func(fld reflect.StructField) string {
-		name := strings.SplitN(fld.Tag.Get("json"), ",", 2)[0]
-
-		if name == "-" {
-			return ""
-		}
-
-		return name
-	})
 
 	// Validate
 	if err := validate.Struct(out); err != nil {

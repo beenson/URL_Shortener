@@ -19,12 +19,14 @@ type Shorten struct {
 	ExpireAt time.Time `gorm:"not null"`
 }
 
-func CreateShorten(shorten *Shorten) error {
-	// Check if code is avaliable
+func (shorten *Shorten) AfterSave(tx *gorm.DB) (err error) {
 	if !checkCodeAvailable(shorten.Code) {
 		return repository.ErrCodeUnavailable
 	}
+	return
+}
 
+func CreateShorten(shorten *Shorten) error {
 	// Insert into database
 	if result := database.Instance.Create(&shorten); result.Error != nil {
 		// Code conflict

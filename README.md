@@ -22,7 +22,7 @@ go build -o API.exe
 
 ## 問題與解決
 Q:若未來有Load Balance需求，可能會在Create時有race condition情況發生  
-A:目前尚未解決(打算使用[GORM Create Hooks](https://gorm.io/docs/create.html#Create-Hooks)來避免)  
+A:使用[GORM Create Hooks](https://gorm.io/docs/create.html#Create-Hooks)避免，不過功能與想像有些落差，可能無法有效解決問題，未來朝向Locking方向進行研究  
   
 Q:原設計想法為使用redis TTL機制判斷CODE是否已經過期，不過redis的TTL可能有不準確的問題  
 A:為求精確，將過期的時間資訊一併存放到redis上，而TTL設置時間不會因為過期時間接近改變  

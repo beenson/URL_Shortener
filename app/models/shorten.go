@@ -19,6 +19,10 @@ type Shorten struct {
 	ExpireAt time.Time `gorm:"not null"`
 }
 
+func (shorten *Shorten) Expired() bool {
+	return shorten.ExpireAt.After(time.Now())
+}
+
 func (shorten *Shorten) AfterSave(tx *gorm.DB) (err error) {
 	if !checkCodeAvailable(shorten.Code) {
 		return repository.ErrCodeUnavailable
@@ -39,11 +43,7 @@ func CreateShorten(shorten *Shorten) error {
 
 func GetOriginalUrl(shorten *Shorten) error {
 	// check if exist in redis first
-	if getInfoFromCache(shorten.Code, shorten) {
-		// if expired return error
-		if shorten.ExpireAt.Before(time.Now()) {
-			return gorm.ErrRecordNotFound
-		}
+	if getInfoFromCache(shorten) {
 		return nil
 	}
 
@@ -62,7 +62,7 @@ func GetOriginalUrl(shorten *Shorten) error {
 
 // true for available; false for unavailable
 func checkCodeAvailable(code string) bool {
-	if getInfoFromCache(code, nil) {
+	if getInfoFromCache(&Shorten{Code: code}) {
 		return false
 	}
 
@@ -72,8 +72,8 @@ func checkCodeAvailable(code string) bool {
 }
 
 // ture for found; false for not found
-func getInfoFromCache(code string, shorten *Shorten) bool {
-	val, err := cache.Instance.Get(cache.Ctx, code).Result()
+func getInfoFromCache(shorten *Shorten) bool {
+	val, err := cache.Instance.Get(cache.Ctx, shorten.Code).Result()
 	if err == redis.Nil {
 		// code not exist in redis
 		return false
@@ -83,16 +83,23 @@ func getInfoFromCache(code string, shorten *Shorten) bool {
 	}
 
 	// Don't need entity
-	if shorten == nil {
-		return true
-	}
+	temp := &Shorten{}
 
-	err = json.Unmarshal([]byte(val), shorten)
+	err = json.Unmarshal([]byte(val), temp)
 	if err != nil {
 		log.Fatal(err.Error())
 		return false
 	}
 
+	// Check if it is expired
+	if temp.Expired() {
+		// Delete from cache
+		cache.Instance.Del(cache.Ctx, shorten.Code)
+
+		return false
+	}
+
+	shorten = temp
 	log.Printf("load %s from cache", shorten.Code)
 	return true
 }

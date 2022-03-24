@@ -1,4 +1,6 @@
 # URL Shortener
+本專案為產生並管理具時效性的短網址  
+使用者傳入欲縮短的網址以及過期時間，將回傳一個可用的短網址，在過期時限內使用該網址即可導向到註冊時所輸入的網址
 
 ## 環境依賴
 Golang 1.17  
@@ -6,6 +8,7 @@ MariaDB 10.6.5
 Redis 6.2.6
 
 ## 建置及執行
+將.env.example複製為.env並設定參數再執行以下指令  
 ```go
 go mod download
 go build -o API.exe

@@ -9,27 +9,37 @@ import (
 	"github.com/gofiber/fiber/v2"
 )
 
+// @Summary      Create Shorten URL
+// @Description  generate a shorten URL
+// @Tags         url
+// @Accept       json
+// @Produce      json
+// @Param        body  body  model.ShortenUrlResquest  true  "Shorten URL information"
+// @Success      200  {object}  model.ShortenUrlResponse  "success"
+// @Failure      400  {object}  model.HTTPError           "wrong type or missing value"
+// @Failure      500  {object}  model.HTTPError           "server error"
+// @Router       /api/v1/urls [POST]
 func CreateShortenURL(c *fiber.Ctx) error {
 	// Parse
 	shortenURL := &model.ShortenUrlResquest{}
 	if err := util.ParseAndValidate(c, shortenURL); err != nil {
-		return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{
-			"message": err.Error(),
+		return c.Status(fiber.StatusBadRequest).JSON(&model.HTTPError{
+			Message: err.Error(),
 		})
 	}
 
 	// Parse Time
 	expire_at, err := time.Parse(time.RFC3339, shortenURL.ExpireAt)
 	if err != nil {
-		return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{
-			"message": "please check expireAt format",
+		return c.Status(fiber.StatusBadRequest).JSON(&model.HTTPError{
+			Message: "please check expireAt format",
 		})
 	}
 
 	// Check if expire time has passed
 	if expire_at.Before(time.Now()) {
-		return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{
-			"message": "expire time has passed",
+		return c.Status(fiber.StatusBadRequest).JSON(&model.HTTPError{
+			Message: "expire time has passed",
 		})
 	}
 
@@ -47,7 +57,9 @@ func CreateShortenURL(c *fiber.Ctx) error {
 			if err := model.CreateShorten(shorten); err == repository.ErrCodeUnavailable {
 				continue
 			} else if err != nil {
-				return c.SendStatus(fiber.StatusBadRequest)
+				return c.Status(fiber.StatusInternalServerError).JSON(&model.HTTPError{
+					Message: err.Error(),
+				})
 			} else {
 				codeAvaliable = true
 				break
@@ -61,6 +73,13 @@ func CreateShortenURL(c *fiber.Ctx) error {
 	})
 }
 
+// @Summary      Redirect to URL
+// @Description  redirect to origin url if {url_id} exist and without expired
+// @Tags         url
+// @Param        url_id  path  string  true  "The id which response by /api/v1/urls"
+// @Success      302  "redirect"
+// @Failure      404  "{url_id} not found"
+// @Router       /{url_id} [GET]
 func Redirect(c *fiber.Ctx) error {
 	shorten := &model.Shorten{
 		Code: c.Params("url_id"),

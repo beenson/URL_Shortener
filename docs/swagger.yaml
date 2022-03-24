@@ -1,0 +1,83 @@
+basePath: /
+definitions:
+  model.HTTPError:
+    properties:
+      message:
+        example: error message
+        type: string
+    type: object
+  model.ShortenUrlResponse:
+    properties:
+      id:
+        example: <url_id>
+        type: string
+      shortUrl:
+        example: http://localhost/<url_id>
+        type: string
+    type: object
+  model.ShortenUrlResquest:
+    properties:
+      expireAt:
+        example: "2021-02-08T09:20:41Z"
+        type: string
+      url:
+        example: <original_url>
+        type: string
+    required:
+    - expireAt
+    - url
+    type: object
+info:
+  contact: {}
+  description: URL Shortener API
+  title: URL Shortener API
+  version: "1.0"
+paths:
+  /{url_id}:
+    get:
+      description: redirect to origin url if {url_id} exist and without expired
+      parameters:
+      - description: The id which response by /api/v1/urls
+        in: path
+        name: url_id
+        required: true
+        type: string
+      responses:
+        "302":
+          description: redirect
+        "404":
+          description: '{url_id} not found'
+      summary: Redirect to URL
+      tags:
+      - url
+  /api/v1/urls:
+    post:
+      consumes:
+      - application/json
+      description: generate a shorten URL
+      parameters:
+      - description: Shorten URL information
+        in: body
+        name: body
+        required: true
+        schema:
+          $ref: '#/definitions/model.ShortenUrlResquest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: success
+          schema:
+            $ref: '#/definitions/model.ShortenUrlResponse'
+        "400":
+          description: wrong type or missing value
+          schema:
+            $ref: '#/definitions/model.HTTPError'
+        "500":
+          description: server error
+          schema:
+            $ref: '#/definitions/model.HTTPError'
+      summary: Create Shorten URL
+      tags:
+      - url
+swagger: "2.0"

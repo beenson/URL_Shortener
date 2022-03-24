@@ -1,6 +1,7 @@
 # URL Shortener
 本專案為產生並管理具時效性的短網址  
-使用者傳入欲縮短的網址以及過期時間，將回傳一個可用的短網址，在過期時限內使用該網址即可導向到註冊時所輸入的網址
+使用者傳入欲縮短的網址以及過期時間，將回傳一個可用的短網址，在過期時限內使用該網址即可導向到註冊時所輸入的網址  
+詳細API參數與路徑請先執行程式後查看[/swagger/index.html](http://localhost/swagger/index.html)
 
 ## 環境依賴
 Golang 1.17  
@@ -17,11 +18,13 @@ go build -o API.exe
 
 ## 使用套件
 - [Fiber](https://github.com/gofiber/fiber)
+- [fiber-swagger](https://github.com/arsmn/fiber-swagger)
 - [GoDotEnv](https://github.com/joho/godotenv)
 - [GORM](https://gorm.io/index.html)
 - [go-redis](https://github.com/go-redis/redis)
 - [Testify](https://github.com/stretchr/testify)
 - [Validator](https://github.com/go-playground/validator)
+- [swag](https://github.com/swaggo/swag)
 
 ## 問題與解決
 Q:若未來有Load Balance需求，可能會在Create時有race condition情況發生  

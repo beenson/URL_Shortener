@@ -13,6 +13,10 @@ import (
 	"github.com/joho/godotenv"
 )
 
+// @title       URL Shortener API
+// @version     1.0
+// @description URL Shortener API
+// @BasePath    /
 func main() {
 	if err := godotenv.Load(); err != nil {
 		log.Fatal("Error loading .env file")
@@ -32,6 +36,7 @@ func main() {
 	// routes
 	app := fiber.New()
 	route.PublicRoutes(app)
+	route.SwaggerRoute(app)
 	route.NotFoundRoute(app)
 
 	// Listen port 80

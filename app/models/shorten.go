@@ -23,7 +23,7 @@ func (shorten *Shorten) Expired() bool {
 	return shorten.ExpireAt.After(time.Now())
 }
 
-func (shorten *Shorten) AfterSave(tx *gorm.DB) (err error) {
+func (shorten *Shorten) BeforeCreate(tx *gorm.DB) (err error) {
 	if !checkCodeAvailable(shorten.Code) {
 		return repository.ErrCodeUnavailable
 	}
@@ -35,6 +35,13 @@ func CreateShorten(shorten *Shorten) error {
 	if result := database.Instance.Create(&shorten); result.Error != nil {
 		// Code conflict
 		return result.Error
+	}
+
+	// Check if race condition occured
+	if getNumberOfCodeFromDB(shorten.Code) > 1 {
+		database.Instance.Delete(shorten)
+		shorten.ID = 0
+		return repository.ErrCodeUnavailable
 	}
 
 	// Insert success
@@ -60,15 +67,19 @@ func GetOriginalUrl(shorten *Shorten) error {
 	return nil
 }
 
+func getNumberOfCodeFromDB(code string) int64 {
+	var count int64
+	database.Instance.Model(&Shorten{}).Where("code = ? AND expire_at >= ?", code, time.Now()).Count(&count)
+	return count
+}
+
 // true for available; false for unavailable
 func checkCodeAvailable(code string) bool {
 	if getInfoFromCache(&Shorten{Code: code}) {
 		return false
 	}
 
-	var count int64
-	database.Instance.Model(&Shorten{}).Where("code = ? AND expire_at >= ?", code, time.Now()).Count(&count)
-	return count == 0
+	return getNumberOfCodeFromDB(code) == 0
 }
 
 // ture for found; false for not found

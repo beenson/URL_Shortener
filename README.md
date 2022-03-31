@@ -17,14 +17,65 @@ go build -o API.exe
 ```
 
 ## 使用套件
-- [Fiber](https://github.com/gofiber/fiber)
-- [fiber-swagger](https://github.com/arsmn/fiber-swagger)
-- [GoDotEnv](https://github.com/joho/godotenv)
-- [GORM](https://gorm.io/index.html)
-- [go-redis](https://github.com/go-redis/redis)
-- [Testify](https://github.com/stretchr/testify)
-- [Validator](https://github.com/go-playground/validator)
-- [swag](https://github.com/swaggo/swag)
+- [Fiber](https://github.com/gofiber/fiber) : web framework
+- [fiber-swagger](https://github.com/arsmn/fiber-swagger) : 製作API說明文件
+- [GoDotEnv](https://github.com/joho/godotenv) : 讀取.env檔案
+- [GORM](https://gorm.io/index.html) : 與database互動，設定簡單易懂
+- [go-redis](https://github.com/go-redis/redis) : 與redis互動
+- [Testify](https://github.com/stretchr/testify) : 測試使用
+- [Validator](https://github.com/go-playground/validator) : 確認輸入格式正確
+- [swag](https://github.com/swaggo/swag) : 製作API說明文件
+
+## 檔案結構
+```
+│  .env.example             // .env範例檔
+│  .env.test                // 測試環境
+│  .gitignore
+│  go.mod
+│  go.sum
+│  main.go                  // 主程式
+│  main_test.go             // 測試
+│  README.md                // readme
+│
+├─app                       // 存放商業邏輯
+│  ├─controllers            // controllers
+│  │      url_shorten.go   
+│  │
+│  └─models                 // models
+│          requests.go
+│          responses.go
+│          shorten.go
+│
+├─docs                      // swagger文件
+│      docs.go
+│      swagger.json
+│      swagger.yaml
+│
+├─pkg                       // 存放專案功能
+│  ├─migrate                // migrations
+│  │      migrate.go
+│  │
+│  ├─repository             // 存放固定變數
+│  │      errors.go
+│  │      variables.go
+│  │
+│  ├─routes                 // routers
+│  │      not_found.go
+│  │      routes.go
+│  │      swagger.go
+│  │
+│  └─utils                  // utils
+│          code_generate.go
+│          initialize.go
+│          parse.go
+│
+└─service                   // 使用外部服務
+    ├─cache                 // redis相關
+    │      connection.go    // redis連線
+    │
+    └─database              // database相關
+            connection.go   // database連線
+```
 
 ## 問題與解決
 Q:若未來有Load Balance需求，可能會在Create時有race condition情況發生  
@@ -42,3 +93,7 @@ A:目前不打算特別進行處理，若將資訊儲存於redis中，可能會�
   
 Q:特定IP進行掃描CODE  
 A:尚未實做(使用middleware，記錄特定IP時間內的請求次數，暫時不提供服務給短時間大量請求的IP)  
+
+## 心得
+很開心有機會參加這一次的活動，原本看到題目時，以為不會有什麼問題，不過等到真正實作時才開始想到有可能出現的問題，經驗沒有很豐富的我，也是花了好多力氣解決大大小小的問題。  
+本次實做問題最大的大概就是關於unit test了，之前上課老師雖然有提過相關方面，不過當時是使用視窗程式做教學，雖然了解testing的重要性，不過卻沒有實做API unit test的經驗，倒置我做的test已經算是API testing等級了，希望未來有機會可以再做的更好。
